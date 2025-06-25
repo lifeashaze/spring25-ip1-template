@@ -11,4 +11,6 @@ import { User } from '../types/types';
  *
  * @type {Model<User>}
  */
-// TODO: Task 1 - Create and export the `UserModel` model. Refer to other model files for guidance.
+const UserModel: Model<User> = mongoose.model<User>('User', userSchema);
+
+export default UserModel;
