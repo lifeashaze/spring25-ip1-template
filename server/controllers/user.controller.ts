@@ -55,12 +55,16 @@ const userController = () => {
    * @returns A promise resolving to void.
    */
   const userLogin = async (req: UserRequest, res: Response): Promise<void> => {
+    if (!isUserBodyValid(req)) {
+      res.status(400).send('Invalid user body');
+      return;
+    }
     try {
       const user: UserCredentials = req.body;
       const userResponse = await loginUser(user);
       res.status(200).send(userResponse);
     } catch (error) {
-      res.status(500).send('Failed to login user');
+      res.status(500).send(`Failed to login user: ${error}`);
     }
   };
 
@@ -74,9 +78,14 @@ const userController = () => {
     try {
       const username = req.params.username;
       const userResponse = await getUserByUsername(username);
-      res.status(200).send(userResponse);
+
+      if ('error' in userResponse) {
+       throw new Error(userResponse.error);
+      }
+
+      res.status(200).json(userResponse);
     } catch (error) {
-      res.status(500).send('Failed to get user');
+      res.status(500).send(`Failed to get user: ${error}`);
     }
   };
 
@@ -87,12 +96,17 @@ const userController = () => {
    * @returns A promise resolving to void.
    */
   const deleteUser = async (req: UserByUsernameRequest, res: Response): Promise<void> => {
-    try {
-      const username = req.params.username;
-      const userResponse = await deleteUserByUsername(username);
-      res.status(200).send(userResponse);
+    try { 
+      const { username } = req.params;
+      const deletedUser = await deleteUserByUsername(username);
+
+      if ('error' in deletedUser) {
+        throw Error(deletedUser.error);
+      }
+
+      res.status(200).json(deletedUser);
     } catch (error) {
-      res.status(500).send('Failed to delete user');
+      res.status(500).send(`Failed to delete user: ${error}`);
     }
   };
 
@@ -103,13 +117,22 @@ const userController = () => {
    * @returns A promise resolving to void.
    */
   const resetPassword = async (req: UserRequest, res: Response): Promise<void> => {
+    if (!isUserBodyValid(req)) {
+      res.status(400).send('Invalid user body');
+      return;
+    }
+    
     try {
-      const username = req.params.username;
-      const updates: Partial<User> = req.body;
-      const userResponse = await updateUser(username, updates);
-      res.status(200).send(userResponse);
+      const { username, password } = req.body;
+      const updatedUser = await updateUser(username, { password });
+
+      if ('error' in updatedUser) {
+        throw Error(updatedUser.error);
+      }
+
+      res.status(200).json(updatedUser);
     } catch (error) {
-      res.status(500).send('Failed to reset password');
+      res.status(500).send(`Failed to update user password: ${error}`);
     }
   };
 

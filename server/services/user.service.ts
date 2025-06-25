@@ -21,6 +21,7 @@ const sanitizeUserForResponse = (user: any): SafeUser => {
  * @returns {Promise<UserResponse>} - Resolves with the saved user object (without the password) or an error message.
  */
 export const saveUser = async (user: User): Promise<UserResponse> => {
+  
   try {
     const newUser = new UserModel(user);
     const savedUser = await newUser.save();
@@ -39,12 +40,13 @@ export const saveUser = async (user: User): Promise<UserResponse> => {
 export const getUserByUsername = async (username: string): Promise<UserResponse> => {
   try {
     const user = await UserModel.findOne({ username });
+    
     if (!user) {
-      return { error: 'User not found' } as UserResponse;
+      throw Error('User does not exist');
     }
     return sanitizeUserForResponse(user);
   } catch (error) {
-    return { error: 'Failed to get user' } as UserResponse;
+    return { error: `Error when getting user: ${error}` };
   }
 };
 
