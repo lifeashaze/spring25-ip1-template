@@ -58,7 +58,9 @@ describe('Test userController', () => {
       const response = await supertest(app).post('/user/signup').send(mockReqBody);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username and password are required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username and password are required and cannot be empty',
+      });
     });
 
     it('should return 400 for request missing password', async () => {
@@ -69,7 +71,9 @@ describe('Test userController', () => {
       const response = await supertest(app).post('/user/signup').send(mockReqBody);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username and password are required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username and password are required and cannot be empty',
+      });
     });
 
     it('should return 400 for request with empty username', async () => {
@@ -81,7 +85,9 @@ describe('Test userController', () => {
       const response = await supertest(app).post('/user/signup').send(mockReqBody);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username and password are required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username and password are required and cannot be empty',
+      });
     });
 
     it('should return 400 for request with empty password', async () => {
@@ -93,7 +99,9 @@ describe('Test userController', () => {
       const response = await supertest(app).post('/user/signup').send(mockReqBody);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username and password are required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username and password are required and cannot be empty',
+      });
     });
 
     it('should return 409 when user already exists', async () => {
@@ -136,7 +144,9 @@ describe('Test userController', () => {
       const response = await supertest(app).post('/user/login').send(mockReqBody);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username and password are required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username and password are required and cannot be empty',
+      });
     });
 
     it('should return 400 for request missing password', async () => {
@@ -147,7 +157,9 @@ describe('Test userController', () => {
       const response = await supertest(app).post('/user/login').send(mockReqBody);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username and password are required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username and password are required and cannot be empty',
+      });
     });
 
     it('should return 400 for request with empty password', async () => {
@@ -159,7 +171,9 @@ describe('Test userController', () => {
       const response = await supertest(app).post('/user/login').send(mockReqBody);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username and password are required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username and password are required and cannot be empty',
+      });
     });
 
     it('should return 401 when user does not exist', async () => {
@@ -168,7 +182,9 @@ describe('Test userController', () => {
         password: mockUser.password,
       };
 
-      loginUserSpy.mockResolvedValueOnce({ error: 'Failed to login user: Error: User does not exist' });
+      loginUserSpy.mockResolvedValueOnce({
+        error: 'Failed to login user: Error: User does not exist',
+      });
 
       const response = await supertest(app).post('/user/login').send(mockReqBody);
 
@@ -183,7 +199,9 @@ describe('Test userController', () => {
         password: 'wrongpassword',
       };
 
-      loginUserSpy.mockResolvedValueOnce({ error: 'Failed to login user: Error: Invalid password' });
+      loginUserSpy.mockResolvedValueOnce({
+        error: 'Failed to login user: Error: Invalid password',
+      });
 
       const response = await supertest(app).post('/user/login').send(mockReqBody);
 
@@ -217,7 +235,9 @@ describe('Test userController', () => {
       const response = await supertest(app).patch('/user/resetPassword').send(mockReqBody);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username and password are required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username and password are required and cannot be empty',
+      });
     });
 
     it('should return 400 for request missing password', async () => {
@@ -228,7 +248,9 @@ describe('Test userController', () => {
       const response = await supertest(app).patch('/user/resetPassword').send(mockReqBody);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username and password are required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username and password are required and cannot be empty',
+      });
     });
 
     it('should return 400 for request with empty password', async () => {
@@ -240,7 +262,9 @@ describe('Test userController', () => {
       const response = await supertest(app).patch('/user/resetPassword').send(mockReqBody);
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username and password are required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username and password are required and cannot be empty',
+      });
     });
 
     it('should return 404 when user does not exist', async () => {
@@ -279,8 +303,10 @@ describe('Test userController', () => {
 
     it('should return 404 when user does not exist', async () => {
       const username = 'nonexistentuser';
-      
-      getUserByUsernameSpy.mockResolvedValueOnce({ error: 'Error when getting user: Error: User does not exist' });
+
+      getUserByUsernameSpy.mockResolvedValueOnce({
+        error: 'Error when getting user: Error: User does not exist',
+      });
 
       const response = await supertest(app).get(`/user/getUser/${username}`);
 
@@ -308,17 +334,21 @@ describe('Test userController', () => {
       expect(response.status).toBe(404);
     });
 
-    it('should return 400 for invalid username parameter', async () => {    
+    it('should return 400 for invalid username parameter', async () => {
       const response = await supertest(app).delete('/user/deleteUser/%20');
-      
+
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ error: 'Invalid request: username is required and cannot be empty' });
+      expect(response.body).toEqual({
+        error: 'Invalid request: username is required and cannot be empty',
+      });
     });
 
     it('should return 404 when user does not exist', async () => {
       const username = 'nonexistentuser';
-      
-      deleteUserByUsernameSpy.mockResolvedValueOnce({ error: 'Failed to delete user: Error: User does not exist' });
+
+      deleteUserByUsernameSpy.mockResolvedValueOnce({
+        error: 'Failed to delete user: Error: User does not exist',
+      });
 
       const response = await supertest(app).delete(`/user/deleteUser/${username}`);
 
