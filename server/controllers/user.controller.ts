@@ -19,10 +19,7 @@ const userController = () => {
   const isUserBodyValid = (req: UserRequest): boolean => {
     const { username, password } = req.body;
 
-    if (!username ||
-      !password ||
-      username.trim() === '' ||
-      password.trim() === '') {
+    if (!username || !password || username.trim() === '' || password.trim() === '') {
       return false;
     }
 
@@ -36,7 +33,7 @@ const userController = () => {
    */
   const isUserNameParameterValid = (req: UserByUsernameRequest): boolean => {
     const { username } = req.params;
-    return username && username.trim() !== '' ? true : false;
+    return !!(username && username.trim() !== '');
   };
 
   /**
@@ -47,7 +44,9 @@ const userController = () => {
    */
   const createUser = async (req: UserRequest, res: Response): Promise<void> => {
     if (!isUserBodyValid(req)) {
-      res.status(400).json({ error: 'Invalid request: username and password are required and cannot be empty' });
+      res
+        .status(400)
+        .json({ error: 'Invalid request: username and password are required and cannot be empty' });
       return;
     }
 
@@ -79,7 +78,9 @@ const userController = () => {
    */
   const userLogin = async (req: UserRequest, res: Response): Promise<void> => {
     if (!isUserBodyValid(req)) {
-      res.status(400).json({ error: 'Invalid request: username and password are required and cannot be empty' });
+      res
+        .status(400)
+        .json({ error: 'Invalid request: username and password are required and cannot be empty' });
       return;
     }
 
@@ -117,7 +118,7 @@ const userController = () => {
    * @returns A promise resolving to void.
    */
   const getUser = async (req: UserByUsernameRequest, res: Response): Promise<void> => {
-    const username = req.params.username;
+    const { username } = req.params;
 
     if (!isUserNameParameterValid(req)) {
       res.status(400).json({ error: 'Invalid request: username is required and cannot be empty' });
@@ -152,7 +153,7 @@ const userController = () => {
    * @returns A promise resolving to void.
    */
   const deleteUser = async (req: UserByUsernameRequest, res: Response): Promise<void> => {
-    const username = req.params.username;
+    const { username } = req.params;
 
     if (!isUserNameParameterValid(req)) {
       res.status(400).json({ error: 'Invalid request: username is required and cannot be empty' });
@@ -185,7 +186,9 @@ const userController = () => {
    */
   const resetPassword = async (req: UserRequest, res: Response): Promise<void> => {
     if (!isUserBodyValid(req)) {
-      res.status(400).json({ error: 'Invalid request: username and password are required and cannot be empty' });
+      res
+        .status(400)
+        .json({ error: 'Invalid request: username and password are required and cannot be empty' });
       return;
     }
 
