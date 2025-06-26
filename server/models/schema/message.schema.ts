@@ -10,7 +10,17 @@ import { Schema } from 'mongoose';
  * - `msgDateTime`: The date and time the message was sent.
  */
 const messageSchema: Schema = new Schema(
-  // TODO: Task 2 - Define the schema for a message
+  {
+    msg: {
+      type: String,
+    },
+    msgFrom: {
+      type: String,
+    },
+    msgDateTime: {
+      type: Date,
+    },
+  },
   { collection: 'Message' },
 );
 

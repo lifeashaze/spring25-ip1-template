@@ -9,7 +9,10 @@ import { Request } from 'express';
  * - msgDateTime - The date and time when the message was sent.
  */
 export interface Message {
-  // TODO: Task 2 - Define the properties of the Message interface
+  _id?: ObjectId;
+  msg: string;
+  msgFrom: string;
+  msgDateTime: Date;
 }
 
 /**

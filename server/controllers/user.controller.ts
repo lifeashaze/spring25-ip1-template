@@ -216,11 +216,11 @@ const userController = () => {
   };
 
   // Define routes for the user-related operations.
-  router.post('/signup', createUser as any);
-  router.post('/login', userLogin as any);
-  router.patch('/resetPassword', resetPassword as any);
-  router.get('/getUser/:username', getUser as any);
-  router.delete('/deleteUser/:username', deleteUser as any);
+  router.post('/signup', createUser);
+  router.post('/login', userLogin);
+  router.patch('/resetPassword', resetPassword);
+  router.get('/getUser/:username', getUser);
+  router.delete('/deleteUser/:username', deleteUser);
 
   return router;
 };

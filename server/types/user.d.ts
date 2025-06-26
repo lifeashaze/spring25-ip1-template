@@ -32,8 +32,10 @@ export interface User extends UserCredentials {
  * - password - The password submitted in the request
  */
 export interface UserRequest extends Request {
-  username: string;
-  password: string;
+  body: {
+    username: string;
+    password: string;
+  };
 }
 
 /**
@@ -42,7 +44,9 @@ export interface UserRequest extends Request {
  * - username - The username provided as a route parameter
  */
 export interface UserByUsernameRequest extends Request {
-  username: string;
+  params: {
+    username: string;
+  };
 }
 
 /**

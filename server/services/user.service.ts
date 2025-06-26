@@ -5,14 +5,11 @@ import { SafeUser, User, UserCredentials, UserResponse } from '../types/types';
  * Converts a User document to a SafeUser object by removing sensitive fields like password.
  * Handles both Mongoose documents and plain objects.
  *
- * @param {any} user - The user document or object to sanitize
+ * @param {User} user - The user document or object to sanitize
  * @returns {SafeUser} - A sanitized user object without password field
  */
-const sanitizeUserForResponse = (user: any): SafeUser => {
-  const userObj = user.toObject ? user.toObject() : user;
-  const { password, ...safeUser } = userObj;
-  return safeUser as SafeUser;
-};
+const sanitizeUserForResponse = (user: User): SafeUser =>
+  Object.fromEntries(Object.entries(user).filter(([key]) => key !== 'password')) as SafeUser;
 
 /**
  * Saves a new user to the database.
