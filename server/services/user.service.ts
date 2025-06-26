@@ -23,11 +23,17 @@ const sanitizeUserForResponse = (user: any): SafeUser => {
 export const saveUser = async (user: User): Promise<UserResponse> => {
   
   try {
+    const existingUser = await UserModel.findOne({ username: user.username });
+    
+    if (existingUser) {
+      throw Error('User already exists');
+    }
+
     const newUser = new UserModel(user);
     const savedUser = await newUser.save();
     return sanitizeUserForResponse(savedUser);
   } catch (error) {
-    return { error: 'Failed to save user' } as UserResponse;
+    throw Error(`Failed to save user: ${error}`);
   }
 };
 
@@ -62,15 +68,15 @@ export const loginUser = async (loginCredentials: UserCredentials): Promise<User
   try {
     const user = await UserModel.findOne({ username });
     if (!user) {
-      return { error: 'User not found' } as UserResponse;
+      throw Error('User does not exist');
     }
     if (user.password !== password) {
-      return { error: 'Invalid password' } as UserResponse;
+      throw Error('Invalid password');
     }
     
     return sanitizeUserForResponse(user);
   } catch (error) {
-    return { error: 'Failed to login user' } as UserResponse;
+    return { error: `Failed to login user: ${error}` };
   }
 };
 
@@ -84,11 +90,11 @@ export const deleteUserByUsername = async (username: string): Promise<UserRespon
   try {
     const user = await UserModel.findOneAndDelete({ username });
     if (!user) {
-      return { error: 'User not found' } as UserResponse;
+      throw Error('User does not exist');
     }
     return sanitizeUserForResponse(user);
   } catch (error) {
-    return { error: 'Failed to delete user' } as UserResponse;
+    return { error: `Failed to delete user: ${error}` };
   }
 };
 
@@ -103,7 +109,7 @@ export const updateUser = async (username: string, updates: Partial<User>): Prom
   try {
     const user = await UserModel.findOneAndUpdate({ username }, updates, { new: true });
     if (!user) {
-      return { error: 'User not found' } as UserResponse;
+      throw Error('User does not exist');
     }
     return sanitizeUserForResponse(user);
   } catch (error) {

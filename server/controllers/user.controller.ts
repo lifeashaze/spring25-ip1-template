@@ -18,10 +18,26 @@ const userController = () => {
    */
   const isUserBodyValid = (req: UserRequest): boolean => {
     const { username, password } = req.body;
-    if (!username || !password ) {
+    
+    if (!username || !password) {
       return false;
     }
+    
+    if (username.trim() === '' || password.trim() === '') {
+      return false;
+    }
+    
     return true;  
+  };
+
+  /**
+   * Validates that the username parameter is not empty.
+   * @param req The incoming request containing the username as a route parameter.
+   * @returns `true` if the username parameter is not empty; otherwise, `false`.
+   */
+  const isUserNameParameterValid = (req: UserByUsernameRequest): boolean => {
+    const { username } = req.params;
+    return username && username.trim() !== '' ? true : false;
   };
 
   /**
@@ -32,9 +48,10 @@ const userController = () => {
    */
   const createUser = async (req: UserRequest, res: Response): Promise<void> => {
     if (!isUserBodyValid(req)) {
-      res.status(400).send('Invalid request');
+      res.status(400).json({ error: 'Invalid request: username and password are required and cannot be empty' });
       return;
     }
+
     const user: User = {
       ...req.body,
       dateJoined: new Date(),
@@ -42,9 +59,16 @@ const userController = () => {
 
     try {
       const userResponse = await saveUser(user);
-      res.status(201).send(userResponse);
+      res.status(201).json(userResponse);
     } catch (error) {
-      res.status(500).send('Failed to create user');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      if (errorMessage.includes('User already exists')) {
+        res.status(409).json({ error: 'Failed to create user: User already exists' });
+        return;
+      }
+
+      res.status(500).json({ error: `Failed to create user: ${errorMessage}` });
     }
   };
 
@@ -56,15 +80,34 @@ const userController = () => {
    */
   const userLogin = async (req: UserRequest, res: Response): Promise<void> => {
     if (!isUserBodyValid(req)) {
-      res.status(400).send('Invalid user body');
+      res.status(400).json({ error: 'Invalid request: username and password are required and cannot be empty' });
       return;
     }
+
     try {
       const user: UserCredentials = req.body;
       const userResponse = await loginUser(user);
-      res.status(200).send(userResponse);
+
+      if ('error' in userResponse) {
+        const errorMessage = userResponse.error;
+        
+        if (errorMessage.includes('User does not exist')) {
+          res.status(401).json({ error: 'Failed to login user: Invalid credentials' });
+          return;
+        }
+        
+        if (errorMessage.includes('Invalid password')) {
+          res.status(401).json({ error: 'Failed to login user: Invalid credentials' });
+          return;
+        }
+        
+        res.status(500).json({ error: userResponse.error });
+        return;
+      }
+
+      res.status(200).json(userResponse);
     } catch (error) {
-      res.status(500).send(`Failed to login user: ${error}`);
+      res.status(500).json({ error: `Failed to login user: ${error}` });
     }
   };
 
@@ -75,17 +118,31 @@ const userController = () => {
    * @returns A promise resolving to void.
    */
   const getUser = async (req: UserByUsernameRequest, res: Response): Promise<void> => {
+    const username = req.params.username;
+
+    if (!isUserNameParameterValid(req)) {
+      res.status(400).json({ error: 'Invalid request: username is required and cannot be empty' });
+      return;
+    }
+
     try {
-      const username = req.params.username;
       const userResponse = await getUserByUsername(username);
 
       if ('error' in userResponse) {
-       throw new Error(userResponse.error);
+        const errorMessage = userResponse.error;
+        
+        if (errorMessage.includes('User does not exist')) {
+          res.status(404).json({ error: 'User not found' });
+          return;
+        }
+        
+        res.status(500).json({ error: errorMessage });
+        return;
       }
 
       res.status(200).json(userResponse);
     } catch (error) {
-      res.status(500).send(`Failed to get user: ${error}`);
+      res.status(500).json({ error: `Failed to get user: ${error}` });
     }
   };
 
@@ -96,17 +153,28 @@ const userController = () => {
    * @returns A promise resolving to void.
    */
   const deleteUser = async (req: UserByUsernameRequest, res: Response): Promise<void> => {
+    const username = req.params.username;
+
+    if (!isUserNameParameterValid(req)) {
+      res.status(400).json({ error: 'Invalid request: username is required and cannot be empty' });
+      return;
+    }
     try { 
-      const { username } = req.params;
       const deletedUser = await deleteUserByUsername(username);
 
       if ('error' in deletedUser) {
-        throw Error(deletedUser.error);
+        if (deletedUser.error.includes('User does not exist')) {
+          res.status(404).json({ error: 'Failed to delete user: User does not exist' });
+          return;
+        }
+        
+        res.status(500).json({ error: deletedUser.error });
+        return;
       }
 
       res.status(200).json(deletedUser);
     } catch (error) {
-      res.status(500).send(`Failed to delete user: ${error}`);
+      res.status(500).json({ error: `Failed to delete user: ${error}` });
     }
   };
 
@@ -118,21 +186,30 @@ const userController = () => {
    */
   const resetPassword = async (req: UserRequest, res: Response): Promise<void> => {
     if (!isUserBodyValid(req)) {
-      res.status(400).send('Invalid user body');
+      res.status(400).json({ error: 'Invalid request: username and password are required and cannot be empty' });
       return;
     }
     
+    const { username, password } = req.body;
+
     try {
-      const { username, password } = req.body;
       const updatedUser = await updateUser(username, { password });
 
       if ('error' in updatedUser) {
-        throw Error(updatedUser.error);
+        const errorMessage = updatedUser.error;
+        
+        if (errorMessage.includes('User does not exist')) {
+          res.status(404).json({ error: 'Failed to update user password: User not found' });
+          return;
+        }
+        
+        res.status(500).json({ error: updatedUser.error });
+        return;
       }
 
       res.status(200).json(updatedUser);
     } catch (error) {
-      res.status(500).send(`Failed to update user password: ${error}`);
+      res.status(500).json({ error: `Failed to update user password: ${error}` });
     }
   };
 
