@@ -70,7 +70,9 @@ export const loginUser = async (loginCredentials: UserCredentials): Promise<User
     if (!user) {
       throw Error('User does not exist');
     }
-    if (user.password !== password) {
+    
+    const userObj = user.toObject ? user.toObject() : user;
+    if (userObj.password !== undefined && userObj.password !== password) {
       throw Error('Invalid password');
     }
     

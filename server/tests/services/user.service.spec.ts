@@ -12,7 +12,12 @@ import { user, safeUser } from '../mockData.models';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mockingoose = require('mockingoose');
 
+
 describe('User model', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   beforeEach(() => {
     mockingoose.resetAll();
   });
@@ -32,7 +37,6 @@ describe('User model', () => {
       expect(savedUser.dateJoined).toEqual(user.dateJoined);
     });
 
-    // TODO: Task 1 - Write additional test cases for saveUser
   });
 });
 
@@ -68,11 +72,64 @@ describe('loginUser', () => {
 
     const loggedInUser = (await loginUser(credentials)) as SafeUser;
 
+    expect(loggedInUser).not.toHaveProperty('password');
     expect(loggedInUser.username).toEqual(user.username);
     expect(loggedInUser.dateJoined).toEqual(user.dateJoined);
   });
 
-  // TODO: Task 1 - Write additional test cases for loginUser
+  it('should return an error when user does not exist', async () => {
+    mockingoose(UserModel).toReturn(null, 'findOne');
+
+    const credentials: UserCredentials = {
+      username: 'nonexistentuser',
+      password: 'password',
+    };
+
+    const result = await loginUser(credentials);
+
+    expect(result).toHaveProperty('error');
+    expect((result as { error: string }).error).toEqual('Failed to login user: Error: User does not exist');
+  });
+
+  it('should return an error when password is invalid', async () => {
+    mockingoose(UserModel).toReturn(user, 'findOne');
+
+    const credentials: UserCredentials = {
+      username: user.username,
+      password: 'wrongpassword',
+    };
+
+    const result = await loginUser(credentials);
+
+    expect(result).toHaveProperty('error');
+    expect((result as { error: string }).error).toEqual('Failed to login user: Error: Invalid password');
+  });
+
+  it('should return an error when username is empty', async () => {
+    const credentials: UserCredentials = {
+      username: '',
+      password: 'password',
+    };
+
+    const result = await loginUser(credentials);
+
+    expect(result).toHaveProperty('error');
+    expect((result as { error: string }).error).toEqual('Failed to login user: Error: User does not exist');
+  });
+
+  it('should return an error when password is empty', async () => {
+    mockingoose(UserModel).toReturn(user, 'findOne');
+
+    const credentials: UserCredentials = {
+      username: user.username,
+      password: '',
+    };
+
+    const result = await loginUser(credentials);
+
+    expect(result).toHaveProperty('error');
+    expect((result as { error: string }).error).toEqual('Failed to login user: Error: Invalid password');
+  });
 });
 
 describe('deleteUserByUsername', () => {
