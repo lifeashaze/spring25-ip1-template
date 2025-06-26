@@ -10,7 +10,7 @@ import {
 
 const userController = () => {
   const router: Router = express.Router();
-  
+
   /**
    * Validates that the request body contains all required fields for a user.
    * @param req The incoming request containing user data.
@@ -18,16 +18,15 @@ const userController = () => {
    */
   const isUserBodyValid = (req: UserRequest): boolean => {
     const { username, password } = req.body;
-    
-    if (!username || !password) {
+
+    if (!username ||
+      !password ||
+      username.trim() === '' ||
+      password.trim() === '') {
       return false;
     }
-    
-    if (username.trim() === '' || password.trim() === '') {
-      return false;
-    }
-    
-    return true;  
+
+    return true;
   };
 
   /**
@@ -62,7 +61,7 @@ const userController = () => {
       res.status(201).json(userResponse);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      
+
       if (errorMessage.includes('User already exists')) {
         res.status(409).json({ error: 'Failed to create user: User already exists' });
         return;
@@ -90,17 +89,17 @@ const userController = () => {
 
       if ('error' in userResponse) {
         const errorMessage = userResponse.error;
-        
+
         if (errorMessage.includes('User does not exist')) {
           res.status(401).json({ error: 'Failed to login user: Invalid credentials' });
           return;
         }
-        
+
         if (errorMessage.includes('Invalid password')) {
           res.status(401).json({ error: 'Failed to login user: Invalid credentials' });
           return;
         }
-        
+
         res.status(500).json({ error: userResponse.error });
         return;
       }
@@ -130,12 +129,12 @@ const userController = () => {
 
       if ('error' in userResponse) {
         const errorMessage = userResponse.error;
-        
+
         if (errorMessage.includes('User does not exist')) {
           res.status(404).json({ error: 'User not found' });
           return;
         }
-        
+
         res.status(500).json({ error: errorMessage });
         return;
       }
@@ -159,7 +158,7 @@ const userController = () => {
       res.status(400).json({ error: 'Invalid request: username is required and cannot be empty' });
       return;
     }
-    try { 
+    try {
       const deletedUser = await deleteUserByUsername(username);
 
       if ('error' in deletedUser) {
@@ -167,7 +166,7 @@ const userController = () => {
           res.status(404).json({ error: 'Failed to delete user: User does not exist' });
           return;
         }
-        
+
         res.status(500).json({ error: deletedUser.error });
         return;
       }
@@ -189,7 +188,7 @@ const userController = () => {
       res.status(400).json({ error: 'Invalid request: username and password are required and cannot be empty' });
       return;
     }
-    
+
     const { username, password } = req.body;
 
     try {
@@ -197,12 +196,12 @@ const userController = () => {
 
       if ('error' in updatedUser) {
         const errorMessage = updatedUser.error;
-        
+
         if (errorMessage.includes('User does not exist')) {
           res.status(404).json({ error: 'Failed to update user password: User not found' });
           return;
         }
-        
+
         res.status(500).json({ error: updatedUser.error });
         return;
       }
