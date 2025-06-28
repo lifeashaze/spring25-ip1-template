@@ -24,7 +24,14 @@ export const saveMessage = async (message: Message): Promise<MessageResponse> =>
  */
 export const getMessages = async (): Promise<Message[]> => {
   try {
-    const messages = await MessageModel.find().sort({ msgDateTime: 1 });
+    const messages: Message[] = await MessageModel.find({});
+    
+    messages.sort((messageA, messageB) => {
+      const dateA = messageA.msgDateTime.getTime();
+      const dateB = messageB.msgDateTime.getTime();
+      return dateA - dateB;
+    });
+
     return messages;
   } catch (error) {
     return [];
