@@ -14,8 +14,11 @@ const messageController = (socket: FakeSOSocket) => {
    * @returns `true` if the request is valid, otherwise `false`.
    */
   const isRequestValid = (req: AddMessageRequest): boolean =>
+    req.body.messageToAdd !== undefined &&
     req.body.messageToAdd.msg !== undefined &&
+    req.body.messageToAdd.msg.trim() !== '' &&
     req.body.messageToAdd.msgFrom !== undefined &&
+    req.body.messageToAdd.msgFrom.trim() !== '' &&
     req.body.messageToAdd.msgDateTime !== undefined;
 
   /**
@@ -26,7 +29,11 @@ const messageController = (socket: FakeSOSocket) => {
    * @returns `true` if the message is valid, otherwise `false`.
    */
   const isMessageValid = (message: Message): boolean =>
-    message.msg !== undefined && message.msgFrom !== undefined && message.msgDateTime !== undefined;
+    message.msg !== undefined &&
+    message.msg.trim() !== '' &&
+    message.msgFrom !== undefined &&
+    message.msgFrom.trim() !== '' &&
+    message.msgDateTime !== undefined;
 
   /**
    * Handles adding a new message. The message is first validated and then saved.
@@ -39,14 +46,14 @@ const messageController = (socket: FakeSOSocket) => {
    */
   const addMessageRoute = async (req: AddMessageRequest, res: Response): Promise<void> => {
     if (!isRequestValid(req)) {
-      res.status(400).send('Invalid request body');
+      res.status(400).send('Invalid request');
       return;
     }
 
     const { messageToAdd: msg } = req.body;
 
     if (!isMessageValid(msg)) {
-      res.status(400).send('Invalid message body');
+      res.status(400).send('Invalid request');
       return;
     }
 

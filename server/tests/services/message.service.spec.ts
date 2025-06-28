@@ -50,7 +50,6 @@ describe('Message model', () => {
 
       createSpy.mockRestore();
     });
-
   });
 
   describe('getMessages', () => {
@@ -74,7 +73,7 @@ describe('Message model', () => {
       const messages = await getMessages();
 
       expect(messages).toEqual([]);
-      expect(Array.isArray(messages)).toBe(true); 
+      expect(Array.isArray(messages)).toBe(true);
 
       findSpy.mockRestore();
     });
